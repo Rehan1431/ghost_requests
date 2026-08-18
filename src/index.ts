@@ -14,9 +14,8 @@ async function bootstrap() {
         console.error(`[Boot] Proxy will still start, but mock generation will fail until the spec is fixed.`);
     }
 
-    // Force bind to IPv4 to prevent Windows localhost routing issues
     app.listen(Number(config.PORT), '0.0.0.0', () => {
-        console.log(`[Boot] 🚀 Ghost-Environment Proxy is LIVE on [http://127.0.0.1](http://127.0.0.1):${config.PORT}`);
+        console.log(`[Boot] Ghost-Environment Proxy is LIVE on http://127.0.0.1:${config.PORT}`);
     });
 }
 

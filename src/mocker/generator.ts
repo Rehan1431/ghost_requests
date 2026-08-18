@@ -2,14 +2,8 @@
 import { faker } from '@faker-js/faker';
 import { OpenAPIV3 } from 'openapi-types';
 
-/**
- * Recursively generates mock data based on an OpenAPI schema object.
- * @param schema The OpenAPI Schema Object to generate data for.
- * @returns The generated mock data (can be string, number, object, array, etc.).
- */
 export function generateMockData(schema: OpenAPIV3.SchemaObject): any {
   if (!schema || !schema.type) {
-    // If no type is specified, we'll just return a random word as a fallback.
     return faker.lorem.word();
   }
 
@@ -30,9 +24,6 @@ export function generateMockData(schema: OpenAPIV3.SchemaObject): any {
   }
 }
 
-/**
- * Handles string generation, taking into account common string formats.
- */
 function generateString(schema: OpenAPIV3.SchemaObject): string {
   if (schema.format) {
     switch (schema.format) {
@@ -44,19 +35,13 @@ function generateString(schema: OpenAPIV3.SchemaObject): string {
       case 'date-time':
         return faker.date.recent().toISOString();
       default:
-        // For unknown formats, fall back to basic words
         return faker.lorem.words(3);
     }
   }
-  // No format specified
   return faker.lorem.words(2);
 }
 
-/**
- * Handles array generation by generating between 2 and 5 items of the specified type.
- */
 function generateArray(schema: OpenAPIV3.SchemaObject): any[] {
-  // Using 'any' cast to bypass strict SchemaObject union constraints on 'items'
   const items = (schema as any).items;
   if (!items) return [];
 
@@ -68,9 +53,6 @@ function generateArray(schema: OpenAPIV3.SchemaObject): any[] {
   return result;
 }
 
-/**
- * Handles object generation by recursively generating mock data for each property.
- */
 function generateObject(schema: OpenAPIV3.SchemaObject): Record<string, any> {
   const result: Record<string, any> = {};
   if (!schema.properties) return result;
