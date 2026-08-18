@@ -14,7 +14,8 @@ Modern software relies heavily on microservice architectures. When a frontend or
 3. **Generate:** Utilizes `@faker-js/faker` to dynamically construct a valid JSON payload that perfectly matches the required schema types.
 4. **Serve:** Returns the payload to the client with a custom `X-Ghost-Environment: true` header to indicate the data was mocked.
 
-[Insert Architecture Diagram Screenshot Here]
+### Interception and Boot Logs
+![Server Boot and Interception Logs](server%20running.png)
 
 ## System Requirements
 - Node.js (v18 or higher)
