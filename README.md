@@ -28,4 +28,33 @@ Modern distributed microservice architectures create massive development bottlen
 
 ---
 
+## Project In Action
+
+*Below: The Proxy Server intercepting routes and the Client UI reacting to dropped requests (Chaos Mode).*
+
+<div align="center">
+  <img src="./server running.png" alt="Server Running Console" width="800" style="margin-bottom: 20px; border-radius: 8px;"/>
+  <br/>
+  <img src="./false requests.png" alt="Failed Requests UI" width="800" style="border-radius: 8px;"/>
+</div>
+
+---
+
 ## Architecture Overview
+
+```text
+[ Client / Web App ]
+         │
+    HTTP Requests
+         ▼
+┌────────────────────────────────────────────────────────┐
+│               Ghost-Environment Core                   │
+│  ├─ Route Matcher (Regex Path Resolution)             │
+│  ├─ Schema Dereferencer (@apidevtools/swagger-parser)  │
+│  ├─ Dynamic Mock Engine (@faker-js/faker)             │
+│  └─ Chaos Middleware (Latency & Fault Injection)       │
+└────────────────────────────────────────────────────────┘
+         │
+    Valid Mock Payload / Injected Fault
+         ▼
+[ Client Receives Response ]
