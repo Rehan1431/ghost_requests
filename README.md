@@ -1,29 +1,60 @@
-# Ghost-Environment: Zero-Config Microservice Mocker
+# Ghost-Environment
 
-**Built for the Breakpoint Hackathon 2026 (Software & Developer Tools Track)**
+> **Zero-Config Dynamic Microservice Mocker & Chaos Engineering Proxy**
 
-## Overview
-Modern software relies heavily on microservice architectures. When a frontend or backend developer attempts to test a single feature locally, they encounter a significant bottleneck: they must either manually maintain static mock files (which become outdated instantly) or spin up resource-intensive Docker containers for unrelated services just to avoid `ECONNREFUSED` network errors. 
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-43853D?style=flat&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-38B2AC?style=flat&logo=tailwind_css&logoColor=white)](https://tailwindcss.com/)
 
-**Ghost-Environment** solves the "works on my machine" problem by acting as a lightweight, intelligent local proxy. If a requested microservice is offline, the proxy intercepts the failure, reads the central OpenAPI 3.0 specification, and instantly generates a dynamic, realistic mock response on the fly.
+---
 
-## Architecture & Workflow
+## The Breakpoint
+Modern distributed microservice architectures create massive development bottlenecks:
+* **Heavy Dependency Chains:** Frontend and backend developers are forced to run multiple unrelated services locally, overwhelming machine memory.
+* **Stale Static Mocks:** Manually maintained Postman or JSON mocks quickly drift out of sync with actual OpenAPI specifications.
+* **Untested Resilience:** Edge-case network conditions (latency spikes, server crashes) are rarely tested locally until they fail in production.
 
-1. **Intercept:** Catches `ECONNREFUSED` network errors locally via `http-proxy-middleware`.
-2. **Read:** Scans the provided `openapi.yaml` specification for the exact requested route and method.
-3. **Generate:** Utilizes `@faker-js/faker` to dynamically construct a valid JSON payload that perfectly matches the required schema types.
-4. **Serve:** Returns the payload to the client with a custom `X-Ghost-Environment: true` header to indicate the data was mocked.
+---
 
-### Interception and Boot Logs
-![Server Boot and Interception Logs](server%20running.png)
+## The Solution
+**Ghost-Environment** is a lightweight, zero-configuration local proxy. When an upstream service is missing or offline, Ghost-Environment intercepts the call, parses the central OpenAPI/Swagger specification, and generates dynamically typed, context-aware dummy responses on the fly.
 
-## System Requirements
-- Node.js (v18 or higher)
-- npm
+### Key Features
+* **Schema-Driven Dynamic Generation:** Automatically maps data types, property names (`email`, `uuid`, `firstName`), and nested arrays using `@faker-js/faker`.
+* **Zero-Drift Synchronization:** Always serves responses matching the latest OpenAPI contract.
+* **Built-in Chaos Mode:** Injects random network latency ($300\text{ ms} - 2500\text{ ms}$) and simulates server drops ($500/503$) to test client-side resilience and fallback states.
+* **Visual Telemetry Dashboard:** A real-time client UI to monitor response latency, HTTP status codes, and JSON payloads.
 
-## Installation & Setup
+---
 
-1. Clone the repository:
-```bash
-git clone [https://github.com/Rehan1431/ghost_requests.git](https://github.com/Rehan1431/ghost_requests.git)
-cd ghost_requests
+## Project In Action
+
+*Below: The Proxy Server intercepting routes and the Client UI reacting to dropped requests (Chaos Mode).*
+
+<div align="center">
+  <img src="./server running.png" alt="Server Running Console" width="800" style="margin-bottom: 20px; border-radius: 8px;"/>
+  <br/>
+  <img src="./false requests.png" alt="Failed Requests UI" width="800" style="border-radius: 8px;"/>
+</div>
+
+---
+
+## Architecture Overview
+
+```text
+[ Client / Web App ]
+         │
+    HTTP Requests
+         ▼
+┌────────────────────────────────────────────────────────┐
+│               Ghost-Environment Core                   │
+│  ├─ Route Matcher (Regex Path Resolution)             │
+│  ├─ Schema Dereferencer (@apidevtools/swagger-parser)  │
+│  ├─ Dynamic Mock Engine (@faker-js/faker)             │
+│  └─ Chaos Middleware (Latency & Fault Injection)       │
+└────────────────────────────────────────────────────────┘
+         │
+    Valid Mock Payload / Injected Fault
+         ▼
+[ Client Receives Response ]
