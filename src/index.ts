@@ -1,24 +1,25 @@
-import { app } from './server';
-import { config } from './config';
-import { initParser } from './openapi/parser';
+#!/usr/bin/env node
+import { Command } from 'commander';
+import { startMockServer } from './server';
 
-async function bootstrap() {
-    console.log('[Boot] Starting Ghost-Environment process...');
-    
-    try {
-        console.log(`[Boot] Attempting to load OpenAPI spec from: ${config.SPEC_PATH}`);
-        await initParser(config.SPEC_PATH);
-        console.log(`[Boot] SUCCESS: OpenAPI spec loaded.`);
-    } catch (error) {
-        console.error(`[Boot] WARNING: Failed to load or parse OpenAPI spec.`, error);
-        console.error(`[Boot] Proxy will still start, but mock generation will fail until the spec is fixed.`);
-    }
+const program = new Command();
 
-    app.listen(Number(config.PORT), '0.0.0.0', () => {
-        console.log(`[Boot] Ghost-Environment Proxy is LIVE on http://127.0.0.1:${config.PORT}`);
-    });
-}
+program
+  .name('ghost-env')
+  .description('Zero-config local API proxy and dynamic mocking CLI tool')
+  .option('-p, --port <number>', 'Port to listen on', '3000')
+  .requiredOption('-s, --spec <path>', 'Path to OpenAPI YAML/JSON specification')
+  .option('-r, --resilience', 'Enable Resilience Simulation Engine (latency and dropped requests)', false);
 
-bootstrap().catch(err => {
-    console.error('[Boot] FATAL ERROR during startup:', err);
+program.parse(process.argv);
+
+const options = program.opts();
+
+const port = parseInt(options.port, 10);
+const specPath = options.spec;
+const resilience = options.resilience;
+
+startMockServer(port, specPath, resilience).catch(err => {
+  console.error('Failed to start ghost-env:', err);
+  process.exit(1);
 });
